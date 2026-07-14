@@ -2,40 +2,55 @@
 
 #plateform/linux #target/local #cat/BORIS
 
-% boris, globals, init, set, vars, internal, start
-## [INIT] Boris - Identity setzen (domain / user / password / dc_ip)
+% boris, globals, help, konvention, notation, reference, ntlm, kerberos
+## Boris - Variablen-Konvention (LESEN)
+domain = FQDN (corp.local) . user = sAMAccountName blank (jdoe, KEIN UPN, KEIN DOMAIN\) . password = roh (Quotes kommen erst im Kommando) . dc_ip = IP . dc_fqdn = DC FQDN (dc01.corp.local) . lhost = Angreifer-IP . target_range = CIDR
+NTLM (Default, SMB/nxc/relay): IP-Target ok, domain egal. Kerberos (-k, certipy, nopac, LDAP): IMMER dc_fqdn + domain=FQDN, sonst KDC_ERR_WRONG_REALM / KRB_AP_ERR_MODIFIED.
+certipy braucht UPN: -u user@domain (FQDN). nxc/impacket/bloodhound: -u user blank + -d domain.
+```
+>show
+```
+
+% boris, globals, init, set, identity, start
+## [INIT] Boris - Identity setzen (domain=FQDN / user=blank / password=roh / dc_ip)
 ```
 >set domain=<domain> user=<user> password=<password> dc_ip=<dc_ip>
 ```
 
-% boris, globals, init, set, network, interface, lhost
-## [INIT] Boris - Netzwerk setzen (interface / lhost / target_range)
+% boris, globals, init, set, network, dcfqdn, interface, lhost
+## [INIT] Boris - DC-FQDN + Netz setzen (dc_fqdn / interface / lhost / target_range)
 ```
->set interface=<interface> lhost=<lhost> target_range=<target_range>
+>set dc_fqdn=<dc_fqdn> interface=<interface> lhost=<lhost> target_range=<target_range>
 ```
 
-% boris, globals, set, domain
-## Boris - domain setzen
+% boris, globals, set, domain, fqdn
+## Boris - domain setzen (FQDN, z.B. corp.local)
 ```
 >set domain=<domain>
 ```
 
-% boris, globals, set, user
-## Boris - user setzen
+% boris, globals, set, user, samaccountname
+## Boris - user setzen (blank, z.B. jdoe)
 ```
 >set user=<user>
 ```
 
-% boris, globals, set, password
-## Boris - password setzen
+% boris, globals, set, password, roh
+## Boris - password setzen (ROH, ohne Quotes)
 ```
 >set password=<password>
 ```
 
-% boris, globals, set, dcip
-## Boris - dc_ip setzen
+% boris, globals, set, dcip, ip
+## Boris - dc_ip setzen (IP)
 ```
 >set dc_ip=<dc_ip>
+```
+
+% boris, globals, set, dcfqdn, fqdn, kerberos
+## Boris - dc_fqdn setzen (FQDN, z.B. dc01.corp.local)
+```
+>set dc_fqdn=<dc_fqdn>
 ```
 
 % boris, globals, show, list

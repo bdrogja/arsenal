@@ -11,13 +11,13 @@ nslookup -type=SRV _ldap._tcp.dc._msdcs.<domain>
 % boris, stage2, recon, dc, ldap, domain, nxc
 ## [S2.1b] nxc ldap - DC / Domain Info
 ```
-nxc ldap <dc_ip> -u <user> -p <password>
+nxc ldap <dc_ip> -u <user> -p '<password>' -d <domain>
 ```
 
 % boris, stage2, recon, shares, spider, manspider, loot, creds, passwords
 ## [S2.2] manspider - Shares nach Passwoertern / Creds durchsuchen
 ```
-manspider <target_range> -f passw user login cred kennwort secret -d <domain> -u <user> -p <password>
+manspider <target_range> -f passw user login cred kennwort secret -d <domain> -u <user> -p '<password>'
 ```
 
 % boris, stage2, recon, vmware, esxi, vcenter, hypervisor, nmap, soap

