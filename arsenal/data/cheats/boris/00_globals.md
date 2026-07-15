@@ -1,12 +1,13 @@
-# Boris Globals
+# START
 
-#plateform/linux #target/local #cat/BORIS
+#plateform/linux #target/local #cat/GLOBALS
 
-% boris, globals, help, konvention, notation, reference, ntlm, kerberos
-## Boris - Variablen-Konvention (LESEN)
+% boris, globals, help, konvention, notation, reference, ntlm, kerberos, views, map
+## Boris - Variablen-Konvention (LESEN, siehe auch: map)
 domain = FQDN (corp.local) . user = sAMAccountName blank (jdoe, KEIN UPN, KEIN DOMAIN\) . password = roh (Quotes kommen erst im Kommando) . dc_ip = IP . dc_fqdn = DC FQDN (dc01.corp.local) . lhost = Angreifer-IP . target_range = CIDR
 NTLM (Default, SMB/nxc/relay): IP-Target ok, domain egal. Kerberos (-k, certipy, nopac, LDAP): IMMER dc_fqdn + domain=FQDN, sonst KDC_ERR_WRONG_REALM / KRB_AP_ERR_MODIFIED.
-certipy braucht UPN: -u user@domain (FQDN). nxc/impacket/bloodhound: -u user blank + -d domain.
+certipy-ad braucht UPN: -u user@domain (FQDN). nxc/impacket/bloodhound: -u user blank + -d domain.
+Binary auf Kali = certipy-ad (NICHT certipy). Zwei Sichten: Tool-Wort (certipy/nxc/...) ODER Weg-Wort (relay/adcs/coerce/rbcd/vulns/recon). Tippe map fuer die Uebersicht.
 ```
 >show
 ```
