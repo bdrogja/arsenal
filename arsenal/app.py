@@ -51,6 +51,8 @@ class App:
         group_out.add_argument('-f', '--prefix', action='store_true', help='command prefix')
         group_out.add_argument('--no-tags', action='store_false', help='Whether or not to show the'
                                                                        ' tags when drawing the cheats')
+        parser.add_argument('-s', '--search', action='store', default='',
+                            help='Pre-fill the search filter (page seed), e.g. -s "boris p-relay"')
         parser.add_argument('-V', '--version', action='version', version='%(prog)s (version {})'.format(__version__))
 
         return parser.parse_args()
@@ -69,6 +71,8 @@ class App:
 
     def start(self, args, cheatsheets):
         arsenal_gui.Gui.with_tags = args.no_tags
+        # seed the (only editable) filter surface -> shell aliases become "pages"
+        arsenal_gui.CheatslistMenu.input_buffer = args.search
 
         # create gui object
         gui = arsenal_gui.Gui()

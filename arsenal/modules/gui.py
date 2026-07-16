@@ -240,7 +240,9 @@ class CheatslistMenu:
         # init cursor position (if first draw)
         if self.x_init is None or self.y_init is None or self.xcursor is None:
             self.y_init, self.x_init = curses.getsyx()
-            self.xcursor = self.x_init
+            # prefill compatibility (page seed) -> keep the seeded buffer editable
+            self.x_init -= len(self.input_buffer)
+            self.xcursor = self.x_init + len(self.input_buffer)
         # set cursor position
         curses.setsyx(self.y_init, self.xcursor)
         curses.doupdate()
@@ -848,7 +850,7 @@ class Gui:
         if self.cheats_menu is None:
             # Load cheatList if not already done
             self.cheats_menu = CheatslistMenu()
-            for value in cheatsheets.values():
+            for value in sorted(cheatsheets.values(), key=lambda c: c.filename):
                 self.cheats_menu.globalcheats.append(value)
 
         # if global var save exists load it
